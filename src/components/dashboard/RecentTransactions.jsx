@@ -69,12 +69,15 @@ export const RecentTransactions = ({ transactions = [], loading = false }) => {
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody>
-                                   const safeTransactions = Array.isArray(transactions) ? transactions : [];
-                                    safeTransactions.map((t) => (
-                                        <TransactionRow key={tx.id} transaction={tx} index={index} />
-                                    ))}
-                                </TableBody>
+                               <TableBody>
+  {(Array.isArray(transactions) ? transactions : []).map((tx, index) => (
+    <TransactionRow
+      key={tx.id || index}
+      transaction={tx}
+      index={index}
+    />
+  ))}
+</TableBody>
                             </Table>
                         </div>
                     )}
