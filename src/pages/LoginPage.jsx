@@ -16,21 +16,20 @@ export const LoginPage = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-        const result = await login(email, password);
-        
-        if (result.success) {
-            toast.success('Welcome back!');
-            navigate('/dashboard');
-        } else {
-            toast.error(result.error);
-        }
-        
-        setLoading(false);
-    };
+  const result = await login(email, password);
+
+  if (result.success) {
+    toast.success("Welcome back");
+
+    // 🔥 Espera a que React procese el setUser
+    setTimeout(() => {
+      navigate("/dashboard", { replace: true });
+    }, 0);
+  }
+};
 
     return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 noise-overlay">
