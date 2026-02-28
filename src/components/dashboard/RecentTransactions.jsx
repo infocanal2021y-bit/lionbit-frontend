@@ -70,7 +70,8 @@ export const RecentTransactions = ({ transactions = [], loading = false }) => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {transactions.map((tx, index) => (
+                                   const safeTransactions = Array.isArray(transactions) ? transactions : [];
+                                    safeTransactions.map((t) => (
                                         <TransactionRow key={tx.id} transaction={tx} index={index} />
                                     ))}
                                 </TableBody>
