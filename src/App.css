@@ -1,0 +1,115 @@
+/* LIONSBIT BANK - Executive Dark Theme Styles */
+
+/* Base body styling to prevent black screen */
+html, body, #root {
+    min-height: 100vh;
+    background-color: #020617; /* slate-950 */
+}
+
+/* Ensure smooth page transitions */
+#root > div {
+    min-height: 100vh;
+}
+
+/* Status badges */
+.status-completed {
+    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+}
+
+.status-pending {
+    @apply bg-amber-500/20 text-amber-400 border border-amber-500/30;
+}
+
+.status-rejected {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+}
+
+/* Card hover effects */
+.card-hover {
+    @apply transition-transform duration-300 ease-out;
+}
+
+.card-hover:hover {
+    @apply -translate-y-1;
+}
+
+/* Button glow effect */
+.btn-glow {
+    @apply relative overflow-hidden;
+}
+
+.btn-glow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-glow:hover::after {
+    width: 300%;
+    height: 300%;
+}
+
+/* Input focus glow */
+.input-glow:focus {
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* Table row hover */
+.table-row-hover {
+    @apply transition-colors duration-200;
+}
+
+.table-row-hover:hover {
+    @apply bg-slate-800/50;
+}
+
+/* Sidebar link styles */
+.sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 transition-colors duration-200;
+}
+
+.sidebar-link:hover {
+    @apply bg-slate-800/50 text-slate-200;
+}
+
+.sidebar-link.active {
+    @apply bg-emerald-500/10 text-emerald-400 border-l-2 border-emerald-500;
+}
+
+/* Gradient text */
+.gradient-text {
+    @apply bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent;
+}
+
+/* Card glass effect */
+.card-glass {
+    @apply bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-xl;
+}
+
+/* Animated number */
+.number-animate {
+    @apply font-mono tabular-nums;
+}
+
+/* Loading skeleton */
+.skeleton {
+    @apply animate-pulse bg-slate-800/50 rounded;
+}
+
+/* Responsive container */
+.container-app {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Mobile navigation */
+@media (max-width: 768px) {
+    .mobile-nav-open {
+        @apply fixed inset-0 z-50 bg-slate-950;
+    }
+}
