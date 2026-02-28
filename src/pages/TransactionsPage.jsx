@@ -27,7 +27,7 @@ export const TransactionsPage = () => {
     const fetchTransactions = async () => {
         try {
             const response = await transactionsAPI.getAllHistory();
-            setTransactions(response.data);
+           setTransactions(response.data.transactions || []);
         } catch (error) {
             toast.error('Failed to load transactions');
         } finally {
