@@ -14,16 +14,26 @@ export const NotificationBell = () => {
     const fetchNotifications = async () => {
         try {
             const response = await notificationsAPI.getAll();
-            setNotifications(response.data.notifications);
-            setUnreadCount(response.data.unread_count);
+
+            // Protección total contra undefined
+            const notificationsData = response?.data?.notifications || [];
+            const unread = response?.data?.unread_count || 0;
+
+            setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
+            setUnreadCount(typeof unread === 'number' ? unread : 0);
+
         } catch (error) {
-            console.error('Failed to fetch notifications');
+            console.error('Failed to fetch notifications', error);
+
+            // Nunca dejamos estados undefined
+            setNotifications([]);
+            setUnreadCount(0);
         }
     };
 
     useEffect(() => {
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+        const interval = setInterval(fetchNotifications, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -32,7 +42,7 @@ export const NotificationBell = () => {
             await notificationsAPI.markRead(id);
             fetchNotifications();
         } catch (error) {
-            console.error('Failed to mark notification as read');
+            console.error('Failed to mark notification as read', error);
         }
     };
 
@@ -41,7 +51,7 @@ export const NotificationBell = () => {
             await notificationsAPI.markAllRead();
             fetchNotifications();
         } catch (error) {
-            console.error('Failed to mark all as read');
+            console.error('Failed to mark all as read', error);
         }
     };
 
@@ -49,7 +59,7 @@ export const NotificationBell = () => {
         try {
             return formatDistanceToNow(new Date(dateString), { addSuffix: true });
         } catch {
-            return dateString;
+            return dateString || '';
         }
     };
 
@@ -70,6 +80,7 @@ export const NotificationBell = () => {
                     )}
                 </Button>
             </PopoverTrigger>
+
             <PopoverContent className="w-80 p-0 bg-slate-900 border-slate-800" align="end">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
                     <h3 className="font-semibold text-white">Notifications</h3>
@@ -84,35 +95,36 @@ export const NotificationBell = () => {
                         </Button>
                     )}
                 </div>
+
                 <ScrollArea className="h-[300px]">
-                    {notifications.length === 0 ? (
+                    {(notifications?.length || 0) === 0 ? (
                         <div className="py-8 text-center text-slate-500">
                             No notifications
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-800">
-                            {notifications.map((notification) => (
+                            {(notifications || []).map((notification) => (
                                 <div
-                                    key={notification.id}
+                                    key={notification?.id || Math.random()}
                                     className={`px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors ${
-                                        !notification.read ? 'bg-slate-800/30' : ''
+                                        !notification?.read ? 'bg-slate-800/30' : ''
                                     }`}
-                                    onClick={() => handleMarkRead(notification.id)}
-                                    data-testid={`notification-${notification.id}`}
+                                    onClick={() => notification?.id && handleMarkRead(notification.id)}
+                                    data-testid={`notification-${notification?.id}`}
                                 >
                                     <div className="flex items-start gap-3">
-                                        {!notification.read && (
+                                        {!notification?.read && (
                                             <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0" />
                                         )}
-                                        <div className={!notification.read ? '' : 'ml-5'}>
+                                        <div className={!notification?.read ? '' : 'ml-5'}>
                                             <p className="font-medium text-white text-sm">
-                                                {notification.title}
+                                                {notification?.title || 'Untitled'}
                                             </p>
                                             <p className="text-xs text-slate-400 mt-1">
-                                                {notification.message}
+                                                {notification?.message || ''}
                                             </p>
                                             <p className="text-xs text-slate-600 mt-2">
-                                                {formatTime(notification.created_at)}
+                                                {formatTime(notification?.created_at)}
                                             </p>
                                         </div>
                                     </div>
