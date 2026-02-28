@@ -100,9 +100,11 @@ export const TransactionsPage = () => {
         }
     };
 
-    const filteredTransactions = transactions.filter((tx) => {
-        if (filter === 'all') return true;
-        return tx.transaction_type === filter;
+   const safeTransactions = Array.isArray(transactions)
+  ? transactions
+  : [];
+
+const filtered = safeTransactions.filter(...);
     });
 
     const formatDate = (dateString) => {
