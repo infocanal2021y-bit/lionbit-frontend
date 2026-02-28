@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -13,27 +13,36 @@ export const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+    // 🔥 Navegación automática cuando el estado cambia
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
-  const result = await login(email, password);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
 
-  if (result.success) {
-    toast.success("Welcome back");
+        const result = await login(email, password);
 
-    // 🔥 Espera a que React procese el setUser
-    setTimeout(() => {
-      navigate("/dashboard", { replace: true });
-    }, 0);
-  }
-};
+        if (result.success) {
+            toast.success("Welcome back");
+            // ❌ No navegamos aquí
+            // El useEffect lo hará cuando isAuthenticated cambie
+        } else {
+            toast.error(result.error || "Login failed");
+        }
+
+        setLoading(false);
+    };
 
     return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 noise-overlay">
-            {/* Background glow */}
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]" />
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]" />
 
@@ -43,7 +52,6 @@ export const LoginPage = () => {
                 transition={{ duration: 0.5 }}
                 className="relative w-full max-w-md"
             >
-                {/* Logo */}
                 <div className="text-center mb-8">
                     <motion.div
                         initial={{ scale: 0.8 }}
@@ -51,53 +59,54 @@ export const LoginPage = () => {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="inline-flex items-center gap-3 mb-4"
                     >
-                        <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center glow-emerald">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                             <Shield className="w-7 h-7 text-emerald-400" />
                         </div>
-                        <h1 className="font-heading text-2xl font-bold text-white tracking-wide">LIONSBIT BANK</h1>
+                        <h1 className="font-heading text-2xl font-bold text-white">
+                            LIONSBIT BANK
+                        </h1>
                     </motion.div>
                     <p className="text-slate-500">Private Digital Banking Platform</p>
                 </div>
 
                 <Card className="bg-slate-900/70 backdrop-blur-xl border-slate-800">
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl font-heading text-white">Welcome Back</CardTitle>
+                        <CardTitle className="text-2xl text-white">
+                            Welcome Back
+                        </CardTitle>
                         <CardDescription className="text-slate-400">
                             Sign in to access your accounts
                         </CardDescription>
                     </CardHeader>
+
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-slate-300">Email</Label>
+                                <Label className="text-slate-300">Email</Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                     <Input
-                                        id="email"
                                         type="email"
                                         placeholder="Enter your email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="pl-10 bg-slate-950/50 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 text-white placeholder:text-slate-600"
+                                        className="pl-10 bg-slate-950 border-slate-800 text-white"
                                         required
-                                        data-testid="login-email-input"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-slate-300">Password</Label>
+                                <Label className="text-slate-300">Password</Label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                     <Input
-                                        id="password"
                                         type="password"
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="pl-10 bg-slate-950/50 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 text-white placeholder:text-slate-600"
+                                        className="pl-10 bg-slate-950 border-slate-800 text-white"
                                         required
-                                        data-testid="login-password-input"
                                     />
                                 </div>
                             </div>
@@ -105,8 +114,7 @@ export const LoginPage = () => {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-shadow hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]"
-                                data-testid="login-submit-btn"
+                                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                             >
                                 {loading ? (
                                     <>
@@ -124,8 +132,7 @@ export const LoginPage = () => {
                                 Don't have an account?{' '}
                                 <Link
                                     to="/register"
-                                    className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-                                    data-testid="register-link"
+                                    className="text-emerald-400 hover:text-emerald-300"
                                 >
                                     Create one
                                 </Link>
