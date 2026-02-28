@@ -69,7 +69,7 @@ export const RecentTransactions = ({ transactions = [], loading = false }) => {
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
-                               <TableBody>
+                              <TableBody>
   {(Array.isArray(transactions) ? transactions : []).map((tx, index) => (
     <TransactionRow
       key={tx.id || index}
