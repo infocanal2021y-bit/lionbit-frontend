@@ -32,54 +32,66 @@ export const TransactionChart = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await transactionsAPI.getStats();
-                const data = response.data;
-                setStats(data);
+    const fetchStats = async () => {
+        try {
+            const response = await transactionsAPI.getStats();
+            const data = response?.data || {};
 
-                const labels = data.chart_data.map(d => {
-                    const date = new Date(d.date);
-                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
+            const chartArray = Array.isArray(data.chart_data)
+                ? data.chart_data
+                : [];
 
-                setChartData({
-                    labels,
-                    datasets: [
-                        {
-                            label: 'Sent',
-                            data: data.chart_data.map(d => d.sent),
-                            borderColor: 'rgb(239, 68, 68)',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                        },
-                        {
-                            label: 'Received',
-                            data: data.chart_data.map(d => d.received),
-                            borderColor: 'rgb(16, 185, 129)',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                        },
-                        {
-                            label: 'Tax Paid',
-                            data: data.chart_data.map(d => d.tax),
-                            borderColor: 'rgb(251, 146, 60)',
-                            backgroundColor: 'rgba(251, 146, 60, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                        },
-                    ],
+            setStats(data);
+
+            const labels = chartArray.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
                 });
-            } catch (error) {
-                console.error('Failed to fetch stats');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchStats();
-    }, []);
+            });
+
+            setChartData({
+                labels,
+                datasets: [
+                    {
+                        label: 'Sent',
+                        data: chartArray.map(d => d.sent || 0),
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                    },
+                    {
+                        label: 'Received',
+                        data: chartArray.map(d => d.received || 0),
+                        borderColor: 'rgb(16, 185, 129)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                    },
+                    {
+                        label: 'Tax Paid',
+                        data: chartArray.map(d => d.tax || 0),
+                        borderColor: 'rgb(251, 146, 60)',
+                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                    },
+                ],
+            });
+
+        } catch (error) {
+            console.error('Failed to fetch stats', error);
+            setStats({});
+            setChartData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchStats();
+}, []);
 
     const options = {
         responsive: true,
@@ -183,7 +195,13 @@ export const TransactionChart = () => {
                         <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                                style={{ width: `${Math.min(100, (stats.daily_used / stats.daily_limit) * 100)}%` }}
+                               style={{
+  width: `${
+    stats?.daily_limit
+      ? Math.min(100, (stats.daily_used / stats.daily_limit) * 100)
+      : 0
+  }%`
+}}
                             />
                         </div>
                     </div>
