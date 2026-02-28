@@ -8,51 +8,47 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const checkAuth = async () => {
+        try {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            const response = await authAPI.getMe();
+            setUser(response.data);
+        } catch (err) {
+            console.error("Auth error:", err);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+        } finally {
+            setLoading(false); // 🔥 SIEMPRE apagar loading
+        }
+    };
+
     useEffect(() => {
         checkAuth();
     }, []);
-
-    const checkAuth = async () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const response = await authAPI.getMe();
-                setUser(response.data);
-            } catch (err) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
-        }
-        setLoading(false);
-    };
 
     const login = async (email, password) => {
         try {
             setError(null);
             const response = await authAPI.login({ email, password });
-            const { token, user: userData } = response.data;
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
-            return { success: true };
-        } catch (err) {
-            const message = err.response?.data?.detail || 'Login failed';
-            setError(message);
-            return { success: false, error: message };
-        }
-    };
 
-    const register = async (name, email, password) => {
-        try {
-            setError(null);
-            const response = await authAPI.register({ name, email, password });
             const { token, user: userData } = response.data;
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
+
+            setUser(userData); // 🔥 Actualiza estado inmediatamente
+
             return { success: true };
         } catch (err) {
-            const message = err.response?.data?.detail || 'Registration failed';
+            const message =
+                err.response?.data?.detail || 'Login failed';
             setError(message);
             return { success: false, error: message };
         }
@@ -68,8 +64,8 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authAPI.getMe();
             setUser(response.data);
-        } catch (err) {
-            // Ignore errors
+        } catch {
+            // No romper app si falla
         }
     };
 
@@ -78,7 +74,6 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         login,
-        register,
         logout,
         refreshUser,
         isAuthenticated: !!user,
@@ -87,7 +82,8 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children} 
+            {/* 🔥 IMPORTANTE: No renderizar nada mientras loading sea true */}
         </AuthContext.Provider>
     );
 };
