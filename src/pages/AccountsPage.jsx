@@ -12,19 +12,26 @@ export const AccountsPage = () => {
     const [loading, setLoading] = useState(true);
     const [currency, setCurrency] = useState('USD');
 
-    useEffect(() => {
-        const fetchAccounts = async () => {
-            try {
-                const response = await accountsAPI.getAll();
-                setAccounts(response.data);
-            } catch (error) {
-                toast.error('Failed to load accounts');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAccounts();
-    }, []);
+   useEffect(() => {
+    const fetchAccounts = async () => {
+        try {
+            const response = await accountsAPI.getAll();
+
+            // 🔥 SOLUCIÓN DEFINITIVA
+            const data = response?.data?.accounts || response?.data;
+
+            setAccounts(Array.isArray(data) ? data : []);
+
+        } catch (error) {
+            setAccounts([]);
+            toast.error('Failed to load accounts');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchAccounts();
+}, []);
 
     const formatAmount = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -83,7 +90,7 @@ export const AccountsPage = () => {
 
                 {/* Account Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {accounts.map((account, index) => {
+                   {Array.isArray(accounts) && accounts.map((account, index) => {
                         const Icon = accountIcons[account.account_type] || Wallet;
                         const isChecking = account.account_type === 'checking';
 
