@@ -222,4 +222,4 @@ return (
   </Layout>
 );
 
-export default WithdrawPage;
+}; export default WithdrawPage;
