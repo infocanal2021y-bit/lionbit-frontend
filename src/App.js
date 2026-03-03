@@ -1,4 +1,75 @@
-import { Layout } from "./components/layout/Layout"; 
+import "@/App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Toaster } from "./components/ui/sonner";
+import { Layout } from "./components/layout/Layout";
+
+// Pages
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { AccountsPage } from "./pages/AccountsPage";
+import { TransactionsPage } from "./pages/TransactionsPage";
+import { WithdrawPage } from "./pages/WithdrawPage";
+import { TransferPage } from "./pages/TransferPage";
+import { KYCPage } from "./pages/KYCPage";
+
+// Admin Pages
+import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminTransactionsPage } from "./pages/admin/AdminTransactionsPage";
+import { AdminWithdrawalsPage } from "./pages/admin/AdminWithdrawalsPage";
+import { AdminKYCPage } from "./pages/admin/AdminKYCPage";
+import { AdminTreasuryPage } from "./pages/admin/AdminTreasuryPage";
+import { AdminCreditsPage } from "./pages/admin/AdminCreditsPage";
+import { AdminCryptoPaymentsPage } from "./pages/admin/AdminCryptoPaymentsPage";
+import { AdminCryptoStatsPage } from "./pages/admin/AdminCryptoStatsPage";
+
+/* ---------------- PROTECTED ROUTE ---------------- */
+
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+/* ---------------- PUBLIC ROUTE ---------------- */
+
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+/* ---------------- ROUTES ---------------- */
 
 function AppRoutes() {
   return (
@@ -7,7 +78,7 @@ function AppRoutes() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-      {/* Protected + Layout wrapper */}
+      {/* Protected Layout Wrapper */}
       <Route
         path="/"
         element={
@@ -41,3 +112,18 @@ function AppRoutes() {
     </Routes>
   );
 }
+
+/* ---------------- MAIN APP ---------------- */
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+        <Toaster position="top-right" richColors />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;
