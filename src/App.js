@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "./components/ui/sonner";
 
@@ -24,7 +24,8 @@ import { AdminCreditsPage } from "./pages/admin/AdminCreditsPage";
 import { AdminCryptoPaymentsPage } from "./pages/admin/AdminCryptoPaymentsPage";
 import { AdminCryptoStatsPage } from "./pages/admin/AdminCryptoStatsPage";
 
-// Protected Route Component
+
+// 🔐 Protected Route
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { isAuthenticated, isAdmin, loading } = useAuth();
 
@@ -47,7 +48,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return children;
 };
 
-// Public Route (redirect to dashboard if already logged in)
+// 🌍 Public Route
 const PublicRoute = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
 
@@ -69,11 +70,11 @@ const PublicRoute = ({ children }) => {
 function AppRoutes() {
     return (
         <Routes>
-            {/* Public Routes */}
+            {/* Public */}
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-            {/* Protected User Routes */}
+            {/* User */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
             <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
@@ -81,7 +82,7 @@ function AppRoutes() {
             <Route path="/transfer" element={<ProtectedRoute><TransferPage /></ProtectedRoute>} />
             <Route path="/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
 
-            {/* Admin Routes */}
+            {/* Admin */}
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboardPage /></ProtectedRoute>} />
             <Route path="/admin/credits" element={<ProtectedRoute adminOnly><AdminCreditsPage /></ProtectedRoute>} />
             <Route path="/admin/crypto-payments" element={<ProtectedRoute adminOnly><AdminCryptoPaymentsPage /></ProtectedRoute>} />
@@ -92,7 +93,7 @@ function AppRoutes() {
             <Route path="/admin/kyc" element={<ProtectedRoute adminOnly><AdminKYCPage /></ProtectedRoute>} />
             <Route path="/admin/treasury" element={<ProtectedRoute adminOnly><AdminTreasuryPage /></ProtectedRoute>} />
 
-            {/* Default redirect */}
+            {/* Default */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
@@ -101,14 +102,10 @@ function AppRoutes() {
 
 function App() {
     return (
-        <div className="App">
-            <BrowserRouter>
-                <AuthProvider>
-                    <AppRoutes />
-                    <Toaster position="top-right" richColors />
-                </AuthProvider>
-            </BrowserRouter>
-        </div>
+        <AuthProvider>
+            <AppRoutes />
+            <Toaster position="top-right" richColors />
+        </AuthProvider>
     );
 }
 
